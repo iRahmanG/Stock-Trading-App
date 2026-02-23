@@ -15,6 +15,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// ROUTES
+const userRoute = require('./routes/userRoute');
+app.use('/api/users', userRoute);
+
 // Basic test route
 app.get('/', (req, res) => {
     res.send('Trading App API is running...');
