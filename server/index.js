@@ -17,7 +17,10 @@ app.use(express.json());
 
 // ROUTES
 const userRoute = require('./routes/userRoute');
+const stockRoute = require('./routes/stockRoute');
+
 app.use('/api/users', userRoute);
+app.use('/api/stocks',stockRoute);
 
 // Basic test route
 app.get('/', (req, res) => {
