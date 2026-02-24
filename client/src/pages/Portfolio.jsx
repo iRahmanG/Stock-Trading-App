@@ -24,7 +24,7 @@ const Portfolio = () => {
           </div>
           <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-2">Total Portfolio Value</p>
           <div className="flex items-baseline gap-3">
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">$124,502.00</h3>
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">₹124,502.00</h3>
           </div>
           <div className="flex items-center gap-1 mt-2 text-emerald-600 dark:text-emerald-400 text-sm font-semibold bg-emerald-50 dark:bg-emerald-900/20 w-fit px-2 py-0.5 rounded-full">
             <span className="material-symbols-outlined text-[16px]">trending_up</span>
@@ -38,7 +38,7 @@ const Portfolio = () => {
           </div>
           <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-2">Day's Gain</p>
           <div className="flex items-baseline gap-3">
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">+$2,450.32</h3>
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">+₹2,450.32</h3>
           </div>
           <div className="flex items-center gap-1 mt-2 text-emerald-600 dark:text-emerald-400 text-sm font-semibold bg-emerald-50 dark:bg-emerald-900/20 w-fit px-2 py-0.5 rounded-full">
             <span className="material-symbols-outlined text-[16px]">trending_up</span>
@@ -52,7 +52,7 @@ const Portfolio = () => {
           </div>
           <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-2">Total Cash</p>
           <div className="flex items-baseline gap-3">
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">$15,200.00</h3>
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">₹15,200.00</h3>
           </div>
           <div className="mt-2 text-sm text-slate-400">Available for trade</div>
         </div>
@@ -63,7 +63,7 @@ const Portfolio = () => {
           </div>
           <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-2">Buying Power</p>
           <div className="flex items-baseline gap-3">
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">$45,000.00</h3>
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">₹45,000.00</h3>
           </div>
           <div className="mt-2 text-sm text-slate-400">Includes margin</div>
         </div>
@@ -103,12 +103,12 @@ const Portfolio = () => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-slate-700 dark:text-slate-300 font-medium font-mono">150</td>
                 <td className="px-6 py-4 whitespace-nowrap text-right">
-                  <div className="text-slate-900 dark:text-white font-bold font-mono">$175.50</div>
+                  <div className="text-slate-900 dark:text-white font-bold font-mono">₹175.50</div>
                   <div className="text-emerald-600 text-xs font-medium flex justify-end items-center">
                     <span className="material-symbols-outlined text-[12px] mr-0.5">arrow_upward</span> 1.2%
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-slate-900 dark:text-white font-bold font-mono">$26,325.00</td>
+                <td className="px-6 py-4 whitespace-nowrap text-right text-slate-900 dark:text-white font-bold font-mono">₹26,325.00</td>
                 <td className="px-6 py-4 whitespace-nowrap text-center">
                   <button className="inline-flex items-center justify-center px-3 py-1.5 border border-primary text-primary hover:bg-primary hover:text-white rounded-md text-xs font-bold transition-all shadow-sm">
                     View Chart

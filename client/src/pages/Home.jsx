@@ -30,7 +30,7 @@ const Home = () => {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-slate-900 dark:text-white">$245.30</p>
+                    <p className="font-bold text-slate-900 dark:text-white">₹245.30</p>
                     <div className="flex items-center justify-end gap-1 text-emerald-600 text-xs font-bold">
                       <span className="material-symbols-outlined text-[14px]">arrow_upward</span>
                       3.2%
@@ -47,7 +47,7 @@ const Home = () => {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-slate-900 dark:text-white">$182.10</p>
+                    <p className="font-bold text-slate-900 dark:text-white">₹182.10</p>
                     <div className="flex items-center justify-end gap-1 text-rose-500 text-xs font-bold">
                       <span className="material-symbols-outlined text-[14px]">arrow_downward</span>
                       0.5%
@@ -64,7 +64,7 @@ const Home = () => {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-slate-900 dark:text-white">$460.15</p>
+                    <p className="font-bold text-slate-900 dark:text-white">₹460.15</p>
                     <div className="flex items-center justify-end gap-1 text-emerald-600 text-xs font-bold">
                       <span className="material-symbols-outlined text-[14px]">arrow_upward</span>
                       1.2%
@@ -136,7 +136,7 @@ const Home = () => {
                 </div>
                 <div className="flex items-center justify-between sm:justify-end gap-8 w-full sm:w-auto">
                   <div className="text-left sm:text-right">
-                    <p className="font-bold text-lg text-slate-900 dark:text-white">$182.10</p>
+                    <p className="font-bold text-lg text-slate-900 dark:text-white">₹182.10</p>
                     <p className="text-rose-500 text-sm font-bold flex items-center sm:justify-end gap-1">
                       <span className="material-symbols-outlined text-[16px]">trending_down</span>
                       -0.5%
@@ -164,7 +164,7 @@ const Home = () => {
                 </div>
                 <div className="flex items-center justify-between sm:justify-end gap-8 w-full sm:w-auto">
                   <div className="text-left sm:text-right">
-                    <p className="font-bold text-lg text-slate-900 dark:text-white">$12.05</p>
+                    <p className="font-bold text-lg text-slate-900 dark:text-white">₹12.05</p>
                     <p className="text-emerald-600 text-sm font-bold flex items-center sm:justify-end gap-1">
                       <span className="material-symbols-outlined text-[16px]">trending_up</span>
                       +1.5%
@@ -192,7 +192,7 @@ const Home = () => {
                 </div>
                 <div className="flex items-center justify-between sm:justify-end gap-8 w-full sm:w-auto">
                   <div className="text-left sm:text-right">
-                    <p className="font-bold text-lg text-slate-900 dark:text-white">$330.50</p>
+                    <p className="font-bold text-lg text-slate-900 dark:text-white">₹330.50</p>
                     <p className="text-emerald-600 text-sm font-bold flex items-center sm:justify-end gap-1">
                       <span className="material-symbols-outlined text-[16px]">trending_up</span>
                       +0.9%

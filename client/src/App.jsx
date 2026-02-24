@@ -1,26 +1,30 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 
-// Import Pages & Components
 import Navbar from './components/Navbar';
 import Landing from './pages/Landing';
 import Home from './pages/Home';
 import Portfolio from './pages/Portfolio';
+import Trade from './pages/Trade';
 
 function App() {
   return (
-    <Router>
-      <div className="min-h-screen flex flex-col bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display">
-        {/* The Navbar will automatically hide itself on the Landing page */}
-        <Navbar />
-        
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/dashboard" element={<Home />} />
-          <Route path="/portfolio" element={<Portfolio />} />
-        </Routes>
-      </div>
-    </Router>
+   
+    <AuthProvider>
+      <Router>
+        <div className="min-h-screen flex flex-col bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display">
+          <Navbar />
+          
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/dashboard" element={<Home />} />
+            <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/trade/:symbol" element={<Trade />} />
+          </Routes>
+        </div>
+      </Router>
+    </AuthProvider>
   );
 }
 
