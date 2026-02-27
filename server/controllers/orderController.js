@@ -25,6 +25,13 @@ const addOrder = async (req, res) => {
     try {
         const { user, symbol, name, price, count, totalPrice, stockType, orderType, orderStatus, stockExchange } = req.body;
 
+        // --- NEW SECURITY CHECK: BLOCK FRACTIONAL SHARES ---
+        if (!Number.isInteger(Number(count)) || Number(count) <= 0) {
+            return res.status(400).json({ 
+                message: "Fractional trading is not supported. Please enter a whole number quantity." 
+            });
+        }
+
         const trader = await User.findOne({ email: user });
         if (!trader) return res.status(404).json({ message: 'User not found' });
 
@@ -63,7 +70,9 @@ const addOrder = async (req, res) => {
         await trader.save();
 
         const order = await Order.create({
-            user, symbol, name, price, count, totalPrice, stockType, orderType, orderStatus
+            user, symbol, name, price, 
+            count: Math.floor(count), // Final safety floor
+            totalPrice, stockType, orderType, orderStatus
         });
 
         res.status(201).json({ order, newBalance: trader.balance });

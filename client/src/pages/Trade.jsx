@@ -42,7 +42,6 @@ const Trade = () => {
     script.type = 'text/javascript';
     script.async = true;
     
-    // Map backend exchange names to official TradingView codes
     const exchangeMap = {
       'NSE': 'NSE',
       'BSE': 'BSE',
@@ -73,6 +72,13 @@ const Trade = () => {
 
   const handleOrder = async () => {
     if (!user) return alert("Please log in to place an order.");
+
+    // --- NEW VALIDATION: Check for fractional shares ---
+    const parsedQuantity = Number(quantity);
+    if (!Number.isInteger(parsedQuantity) || parsedQuantity <= 0) {
+      return alert("Please enter a valid whole number quantity. Fractional shares are not supported.");
+    }
+
     setIsProcessing(true);
     setOrderStatus('');
 
@@ -83,11 +89,12 @@ const Trade = () => {
         symbol: stock.symbol,
         name: stock.name,
         price: stock.price,
-        count: Number(quantity),
-        totalPrice: stock.price * quantity,
+        count: parsedQuantity, // Sending whole number
+        totalPrice: stock.price * parsedQuantity,
         stockType: 'delivery',
         orderType: orderType,
-        orderStatus: 'Completed'
+        orderStatus: 'Completed',
+        stockExchange: stock.stockExchange
       };
 
       const { data } = await axios.post('http://localhost:8000/api/orders', orderData, config);
@@ -140,16 +147,14 @@ const Trade = () => {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Fixed Chart Size: Added h-[550px] for a larger, professional view */}
         <section className="w-full lg:w-2/3 flex flex-col gap-6">
           <div className="bg-white dark:bg-[#1a202c] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm h-[550px] flex flex-col relative overflow-hidden">
             <div className="tradingview-widget-container h-full w-full" ref={chartContainerRef}>
-              <div className="tradingview-widget-container__widget h-full w-full"></div>
+              <div id="tradingview_chart" className="h-full w-full"></div>
             </div>
           </div>
         </section>
 
-        {/* Order Entry Box */}
         <aside className="w-full lg:w-1/3">
           <div className="bg-white dark:bg-[#1a202c] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 sticky top-24">
             <h3 className="font-bold text-xl text-slate-900 dark:text-white mb-6">Place Order</h3>
@@ -161,16 +166,23 @@ const Trade = () => {
 
             <div className="flex flex-col gap-5">
               <div>
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2 block">Quantity</label>
-                <input type="number" min="1" value={quantity} onChange={(e) => setQuantity(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:border-primary" />
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2 block">Quantity (Whole Shares)</label>
+                <input 
+                  type="number" 
+                  min="1" 
+                  step="1" // Prevents fractional arrow movements
+                  value={quantity} 
+                  onChange={(e) => setQuantity(e.target.value)} 
+                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:border-primary" 
+                />
               </div>
 
               <div className="pt-4 border-t border-slate-100 dark:border-slate-800 mt-2">
-                <div className="flex justify-between items-center mb-2 text-sm font-medium text-slate-500">Estimated Total <span className="text-lg font-bold text-slate-900 dark:text-white">{stock.stockExchange === 'NSE' ? '₹' : '$'}{(stock.price * quantity).toLocaleString('en-IN', {minimumFractionDigits: 2})}</span></div>
+                <div className="flex justify-between items-center mb-2 text-sm font-medium text-slate-500">Estimated Total <span className="text-lg font-bold text-slate-900 dark:text-white">{stock.stockExchange === 'NSE' ? '₹' : '$'}{(stock.price * Number(quantity)).toLocaleString('en-IN', {minimumFractionDigits: 2})}</span></div>
                 <div className="flex justify-between items-center text-sm font-medium text-slate-500">Available Funds <span className="font-bold text-slate-900 dark:text-white">₹{user?.balance?.toLocaleString('en-IN')}</span></div>
               </div>
 
-              {orderStatus && <div className={`p-3 rounded text-sm font-bold text-center ${orderStatus.includes('failed') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>{orderStatus}</div>}
+              {orderStatus && <div className={`p-3 rounded text-sm font-bold text-center ${orderStatus.includes('failed') || orderStatus.includes('supported') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>{orderStatus}</div>}
 
               <button onClick={handleOrder} disabled={isProcessing} className={`w-full py-4 rounded-xl text-white font-bold text-lg shadow-md transition-all mt-2 disabled:opacity-50 ${orderType === 'buy' ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-rose-500 hover:bg-rose-600'}`}>
                 {isProcessing ? 'Processing...' : `${orderType === 'buy' ? 'Buy' : 'Sell'} ${stock.symbol}`}
