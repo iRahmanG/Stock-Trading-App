@@ -11,7 +11,6 @@ const Navbar = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [alerts, setAlerts] = useState([]);
 
-  // 1. Theme Logic
   useEffect(() => {
     if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       document.documentElement.classList.add('dark');
@@ -21,37 +20,6 @@ const Navbar = () => {
       setIsDarkMode(false);
     }
   }, []);
-
-  // 2. Fetch Watchlist Updates for Notifications
-  useEffect(() => {
-    const fetchWatchlistAlerts = async () => {
-      const savedWatchlist = JSON.parse(localStorage.getItem('user_watchlist')) || [];
-      if (savedWatchlist.length === 0) return;
-
-      try {
-        const updates = await Promise.all(
-          savedWatchlist.slice(0, 4).map(async (stock) => {
-            const { data } = await axios.get(`http://localhost:8000/api/market/${stock.symbol}`);
-            return {
-              symbol: data.symbol,
-              price: data.price,
-              change: data.changePercent,
-              exchange: data.stockExchange
-            };
-          })
-        );
-        setAlerts(updates);
-      } catch (err) {
-        console.error("Notification sync failed");
-      }
-    };
-
-    if (user) {
-      fetchWatchlistAlerts();
-      const interval = setInterval(fetchWatchlistAlerts, 30000); // Update every 30s
-      return () => clearInterval(interval);
-    }
-  }, [user]);
 
   const toggleTheme = () => {
     const root = document.documentElement;
@@ -68,7 +36,7 @@ const Navbar = () => {
 
   const handleLogout = () => {
     logout();
-    toast.success("Successfully logged out. See you soon!");
+    toast.success("Successfully logged out!");
   };
   
   if (location.pathname === '/') return null;
@@ -84,44 +52,28 @@ const Navbar = () => {
               <span className="material-symbols-outlined text-3xl">show_chart</span>
               <h2 className="text-slate-900 dark:text-white text-xl font-bold tracking-tight italic">Trading App</h2>
             </Link>
-            <nav className="hidden md:flex gap-6 text-sm font-bold">
+            <nav className="hidden md:flex gap-6 text-sm font-bold items-center">
               <Link to="/dashboard" className={location.pathname === '/dashboard' ? 'text-primary' : 'text-slate-500 hover:text-primary'}>Dashboard</Link>
               <Link to="/portfolio" className={location.pathname === '/portfolio' ? 'text-primary' : 'text-slate-500 hover:text-primary'}>Portfolio</Link>
+
+              {/* ADMIN ACCESS LINK */}
+              {user && user.isAdmin && (
+                <Link 
+                  to="/admin" 
+                  className={`flex items-center gap-1 font-black px-3 py-1.5 rounded-lg transition-all ${
+                    location.pathname === '/admin' 
+                    ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20' 
+                    : 'bg-rose-500/10 text-rose-500 hover:bg-rose-500/20'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[20px]">admin_panel_settings</span>
+                  Admin Panel
+                </Link>
+              )}
             </nav>
           </div>
           
           <div className="flex items-center gap-2">
-            {/* Watchlist Notification Bell */}
-            <div className="relative">
-              <button 
-                onClick={() => setShowNotifications(!showNotifications)}
-                className="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full relative"
-              >
-                <span className="material-symbols-outlined">notifications</span>
-                {alerts.length > 0 && <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border-2 border-white dark:border-slate-900"></span>}
-              </button>
-
-              {showNotifications && (
-                <div className="absolute right-0 mt-3 w-72 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl rounded-2xl overflow-hidden animate-in fade-in slide-in-from-top-2">
-                  <div className="p-4 border-b border-slate-100 dark:border-slate-700 font-bold text-xs uppercase tracking-widest text-slate-400">Watchlist Updates</div>
-                  <div className="divide-y divide-slate-50 dark:divide-slate-700">
-                    {alerts.length > 0 ? alerts.map((a, i) => (
-                      <div key={i} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="font-black text-slate-900 dark:text-white text-xs">{a.symbol}</span>
-                          <span className={`text-[10px] font-bold ${a.change >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
-                            {a.change >= 0 ? '▲' : '▼'} {Math.abs(a.change).toFixed(2)}%
-                          </span>
-                        </div>
-                        <p className="text-[10px] text-slate-500">{a.exchange === 'NSE' ? '₹' : '$'}{a.price.toLocaleString()}</p>
-                      </div>
-                    )) : <div className="p-8 text-center text-xs text-slate-400">No stocks pinned yet</div>}
-                  </div>
-                  <Link to="/dashboard" onClick={() => setShowNotifications(false)} className="block p-3 text-center text-[10px] font-bold text-primary bg-slate-50 dark:bg-slate-900 hover:underline">Manage Watchlist</Link>
-                </div>
-              )}
-            </div>
-
             <button onClick={toggleTheme} className="p-2 text-slate-500 hover:text-amber-500 rounded-full transition-colors">
               <span className="material-symbols-outlined">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
             </button>

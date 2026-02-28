@@ -27,6 +27,7 @@ app.use('/api/stocks', stockRoute);
 app.use('/api/transactions', transactionRoute);
 app.use('/api/orders', orderRoute);
 app.use('/api/market', marketRoutes);
+app.use('/api/admin', require('./routes/adminRoutes'));
 
 // Basic test route
 app.get('/', (req, res) => {
