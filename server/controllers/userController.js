@@ -2,6 +2,7 @@ const User = require('../models/userModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Order = require('../models/orderSchema');
+const Notification = require('../models/notificationModel'); // Added missing import
 
 // Helper function to generate a JWT token
 const generateToken = (id) => {
@@ -9,27 +10,19 @@ const generateToken = (id) => {
 };
 
 // @desc    Register a new user
-// @route   POST /api/users/register
 const registerUser = async (req, res) => {
     try {
         const { username, email, usertype, password } = req.body;
-
-        // Check if all fields are provided
         if (!username || !email || !usertype || !password) {
             return res.status(400).json({ message: 'Please add all fields' });
         }
 
-        // Check if user already exists
         const userExists = await User.findOne({ email });
-        if (userExists) {
-            return res.status(400).json({ message: 'User already exists' });
-        }
+        if (userExists) return res.status(400).json({ message: 'User already exists' });
 
-        // Hash the password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // Create the user (Giving them $10,000 virtual balance to start)
         const user = await User.create({
             username,
             email,
@@ -56,18 +49,15 @@ const registerUser = async (req, res) => {
 };
 
 // @desc    Authenticate a user (Login)
-// @route   POST /api/users/login
 const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
-
-        // Find user by email
         const user = await User.findOne({ email });
-        // Check if account is suspended before allowing login
+
         if (user && user.status === 'Suspended') {
             return res.status(403).json({ message: "Your account has been suspended by an administrator." });
         }
-        // Check if user exists AND if the password matches
+
         if (user && (await bcrypt.compare(password, user.password))) {
             res.json({
                 _id: user.id,
@@ -84,6 +74,7 @@ const loginUser = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
 // @desc    User self-deposit funds
 const depositFunds = async (req, res) => {
     try {
@@ -97,7 +88,15 @@ const depositFunds = async (req, res) => {
         user.balance += Number(amount);
         await user.save();
 
-        // Create a record in the Ledger so it shows in the UI history
+        // 1. Trigger Notification
+        await Notification.create({
+            user: user._id,
+            type: 'DEPOSIT',
+            message: `Wallet Recharge Successful: ₹${amount.toLocaleString('en-IN')} has been added to your available cash.`,
+            read: false
+        });
+
+        // 2. Create Ledger Record
         await Order.create({
             user: user.email,
             symbol: 'DEPOSIT',
@@ -109,6 +108,7 @@ const depositFunds = async (req, res) => {
             orderStatus: 'settled',
             stockType: 'Cash'
         });
+
         res.json({ message: "Deposit successful", newBalance: user.balance });
     } catch (error) {
         res.status(500).json({ message: error.message });
