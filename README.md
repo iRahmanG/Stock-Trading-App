@@ -1,4 +1,3 @@
-
 <div align="center">
 
 # Trading App
@@ -26,6 +25,7 @@ Many beginner trading projects rely on static or hardcoded data. **Trading App**
 * **Currency Intelligence**: Automatic conversion for global stocks (USD to INR).
 * **Transaction Security**: Secure JWT-based authentication and private data isolation.
 * **Financial Logic**: Real-time holding validation and balance-aware order processing.
+* **User Autonomy**: Self-service wallet management and real-time activity alerts.
 
 ---
 
@@ -38,6 +38,7 @@ graph TD
     B --> D[Yahoo Finance API]
     A --> E[TradingView Widget]
     B --> F[JWT Security Layer]
+    B --> G[Real-Time Notification Engine]
     F --> B
 
 ```
@@ -49,6 +50,7 @@ graph TD
 * **RESTful API Design** for order management and market data
 * **Real-Time Portfolio Valuation** logic (Cash + Live Market Value)
 * **Stateless Authentication** using JSON Web Tokens (JWT)
+* **Event-Driven Notifications** for instant user feedback on trade execution
 
 ---
 
@@ -73,6 +75,7 @@ graph TD
 * Instant Buy/Sell execution with automated balance deduction
 * Holding validation to prevent selling unowned stocks
 * Dynamic currency conversion for international markets
+* **Admin Controls**: Global and individual stock trading halts
 
 </td>
 </tr>
@@ -80,22 +83,22 @@ graph TD
 <tr>
 <td width="50%">
 
-### Portfolio Analytics
+### Portfolio & Wallet
 
+* **Self-Funded Wallet**: Users can add balance via a dedicated top-up module
 * Real-time Net Worth calculation
-* Sector Exposure visualization
 * Available liquidity (Buying Power) tracking
-* Private Transaction Ledger filtered by user
+* Private Transaction Ledger with specialized "Deposit" tracking
 
 </td>
 <td width="50%">
 
-### Secure Infrastructure
+### Live Infrastructure
 
-* JWT-based authentication system
-* Protected API routes for all financial transactions
-* Cross-Origin Resource Sharing (CORS) configured for security
-* Robust error handling for market data failure
+* **Activity Alerts**: Live notifications for Logins, Buys, Sells, and Deposits
+* JWT-based authentication with account suspension checks
+* Protected API routes with "stockType" validation integrity
+* Robust error handling and theme persistence (Dark/Light mode)
 
 </td>
 </tr>
@@ -107,9 +110,9 @@ graph TD
 
 ### Core Technologies
 
-* **Frontend:** React.js, Tailwind CSS
+* **Frontend:** React.js (Context API), Tailwind CSS
 * **Backend:** Node.js, Express.js
-* **Database:** MongoDB
+* **Database:** MongoDB (Mongoose ODM)
 * **Data Provider:** Yahoo Finance (via yahoo-finance2)
 * **Charts:** TradingView Advanced Real-Time Chart Widget
 
@@ -117,9 +120,13 @@ graph TD
 
 ### Key Domain Logic
 
-* **Net Worth Formula**: $\text{Available Cash} + \sum (\text{Holding Qty} \times \text{Current Live Price})$
-* **Forex Logic**: Automatic application of simulation conversion rate (e.g., 83.00) for USD-denominated assets.
-* **Inventory Safety**: Backend reduce-logic to calculate current holdings from order history before allowing a sell order.
+* **Net Worth Formula**: 
+$$\text{Available Cash} + \sum (\text{Holding Qty} \times \text{Current Live Price})$$
+
+
+* **Forex Logic**: Automatic application of simulation conversion rate ($90.00$) for USD-denominated assets.
+* **Wallet Integrity**: Direct balance updates with corresponding `DEPOSIT` symbol entries in the transaction ledger for auditing.
+* **Notification Polling**: Frontend interval synchronization ensuring alerts reflect live state every 30 seconds.
 
 ---
 
@@ -163,12 +170,7 @@ npm run dev
 
 ```
 
-The application will be accessible at:
-
-```
-http://localhost:5173
-
-```
+The application will be accessible at: `http://localhost:5173`
 
 ---
 
@@ -176,28 +178,10 @@ http://localhost:5173
 
 This project demonstrates proficiency in:
 
-* **Live API Orchestration**: Managing asynchronous data from external financial feeds.
-* **Full-Stack Security**: Implementing data isolation so users only see their own private ledgers.
-* **Complex UI State**: Synchronizing global auth state with real-time market valuations.
-* **Financial Data Modeling**: Proper entity relationships for Users and Orders in a MERN environment.
-
----
-
-## Future Enhancements (Planned)
-
-* Stop-loss and Limit order functionality
-* Real-time WebSocket updates for price changes
-* Advanced portfolio diversification charts
-* User watchlist persistence (Pinning stocks)
-* Historical performance tracking (P&L over time)
-
----
-
-## Author
-**Maksud Rahman**
-
-GitHub: [https://github.com/iRahmanG](https://github.com/iRahmanG)
-
+* **Financial Data Integrity**: Ensuring "stockType" and "totalPrice" validation across transactional models.
+* **Full-Stack Security**: Implementing middleware to block suspended users and isolate private financial data.
+* **Live UI Synchronization**: Managing complex state where wallet updates, order history, and notifications refresh in real-time.
+* **Admin Orchestration**: Building tools for administrators to halt markets or manage user statuses.
 
 ---
 
@@ -206,6 +190,3 @@ GitHub: [https://github.com/iRahmanG](https://github.com/iRahmanG)
 ⭐ If this project helped you understand trading terminal architecture, consider starring the repository!
 
 </div>
-
-
-
