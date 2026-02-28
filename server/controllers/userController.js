@@ -1,6 +1,7 @@
 const User = require('../models/userModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const Order = require('../models/orderSchema');
 
 // Helper function to generate a JWT token
 const generateToken = (id) => {
@@ -83,5 +84,35 @@ const loginUser = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+// @desc    User self-deposit funds
+const depositFunds = async (req, res) => {
+    try {
+        const { amount } = req.body;
+        const user = await User.findById(req.user._id);
 
-module.exports = { registerUser, loginUser };
+        if (!amount || amount <= 0) {
+            return res.status(400).json({ message: "Invalid deposit amount" });
+        }
+
+        user.balance += Number(amount);
+        await user.save();
+
+        // Create a record in the Ledger so it shows in the UI history
+        await Order.create({
+            user: user.email,
+            symbol: 'DEPOSIT',
+            name: 'Wallet Top-up',
+            price: Number(amount),
+            count: 1,
+            totalPrice: Number(amount),
+            orderType: 'buy', 
+            orderStatus: 'settled',
+            stockType: 'Cash'
+        });
+        res.json({ message: "Deposit successful", newBalance: user.balance });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+module.exports = { registerUser, loginUser, depositFunds };
