@@ -5,30 +5,48 @@ import { toast } from 'react-toastify';
 
 const AdminDashboard = () => {
   const { user } = useContext(AuthContext);
-  const [activeTab, setActiveTab] = useState('overview'); // State for sidebar functionality
+  const [activeTab, setActiveTab] = useState('overview');
   const [data, setData] = useState({ stocks: [], transactions: [], users: [], logs: [], activeUsers: 0, serverStatus: 'Operational', latency: '24ms' });
   const [loading, setLoading] = useState(true);
 
+  const fetchAdminData = async () => {
+    try {
+      const config = { headers: { Authorization: `Bearer ${user.token}` } };
+      const { data: telemetry } = await axios.get('http://localhost:8000/api/admin/telemetry', config);
+      setData(telemetry);
+      setLoading(false);
+    } catch (error) {
+      toast.error("Telemetry link failed.");
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchAdminData = async () => {
-      try {
-        const config = { headers: { Authorization: `Bearer ${user.token}` } };
-        const { data: telemetry } = await axios.get('http://localhost:8000/api/admin/telemetry', config);
-        setData(telemetry);
-        setLoading(false);
-      } catch (error) {
-        toast.error("Telemetry link failed.");
-        setLoading(false);
-      }
-    };
     if (user?.isAdmin) fetchAdminData();
   }, [user]);
+
+  const onUpdateUser = async (userId, updateData) => {
+    try {
+      const config = { headers: { Authorization: `Bearer ${user.token}` } };
+      await axios.put('http://localhost:8000/api/admin/user', { userId, ...updateData }, config);
+      toast.success("User updated");
+      fetchAdminData();
+    } catch (err) { toast.error("Update failed"); }
+  };
+
+  const onUpdateStock = async (symbol, updateData) => {
+    try {
+      const config = { headers: { Authorization: `Bearer ${user.token}` } };
+      await axios.put('http://localhost:8000/api/admin/stock', { symbol, ...updateData }, config);
+      toast.success("Stock updated");
+      fetchAdminData();
+    } catch (err) { toast.error("Stock update failed"); }
+  };
 
   if (loading) return <div className="p-8 text-center text-white">Accessing Secure Command Center...</div>;
 
   return (
     <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display min-h-screen flex w-full">
-      {/* Sidebar Navigation */}
       <aside className="w-64 border-r border-slate-200 dark:border-slate-800 flex flex-col bg-white dark:bg-slate-900/50 h-screen sticky top-0">
         <div className="p-6 flex items-center gap-3">
           <div className="size-10 bg-primary rounded-lg flex items-center justify-center text-white"><span className="material-symbols-outlined">terminal</span></div>
@@ -46,10 +64,9 @@ const AdminDashboard = () => {
       </aside>
 
       <main className="flex-1 p-8 space-y-6 overflow-y-auto">
-        {/* Dynamic Content Rendering based on activeTab */}
-        {activeTab === 'overview' && <OverviewTab data={data} />}
-        {activeTab === 'users' && <UserTab users={data.users} />}
-        {activeTab === 'stocks' && <StockTab stocks={data.stocks} />}
+        {activeTab === 'overview' && <OverviewTab data={data} onUpdateUser={onUpdateUser} onUpdateStock={onUpdateStock} />}
+        {activeTab === 'users' && <UserTab users={data.users} onUpdateUser={onUpdateUser} />}
+        {activeTab === 'stocks' && <StockTab stocks={data.stocks} onUpdateStock={onUpdateStock} />}
         {activeTab === 'ledger' && <LedgerTab transactions={data.transactions} />}
         {activeTab === 'settings' && <div className="p-6 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">Settings Module: API Keys and System Toggles</div>}
         {activeTab === 'logs' && <LogTab logs={data.logs} />}
@@ -58,9 +75,9 @@ const AdminDashboard = () => {
   );
 };
 
-// --- SUB-COMPONENTS FOR MODULES ---
+// --- SUB-COMPONENTS ---
 
-const OverviewTab = ({ data }) => (
+const OverviewTab = ({ data, onUpdateUser, onUpdateStock }) => (
   <div className="space-y-6">
     <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
       <HealthCard title="API Latency" value={data.latency} icon="speed" color="emerald-custom" />
@@ -69,32 +86,46 @@ const OverviewTab = ({ data }) => (
       <HealthCard title="Failed Requests" value="0.02%" icon="error" color="rose-custom" />
     </section>
     <div className="grid grid-cols-12 gap-4">
-      <div className="col-span-12 lg:col-span-8"><StockTab stocks={data.stocks.slice(0, 5)} /></div>
-      <div className="col-span-12 lg:col-span-4"><UserTab users={data.users.slice(0, 5)} /></div>
+      <div className="col-span-12 lg:col-span-8"><StockTab stocks={data.stocks.slice(0, 5)} onUpdateStock={onUpdateStock} /></div>
+      <div className="col-span-12 lg:col-span-4"><UserTab users={data.users.slice(0, 5)} onUpdateUser={onUpdateUser} /></div>
     </div>
   </div>
 );
 
-const UserTab = ({ users }) => (
+const UserTab = ({ users, onUpdateUser }) => (
   <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl">
     <h3 className="font-bold mb-4 flex items-center gap-2"><span className="material-symbols-outlined text-amber-500">group</span> User Management</h3>
     <div className="space-y-3">
       {users.map((u, i) => (
         <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
           <div><p className="text-xs font-bold">{u.username}</p><p className="text-[10px] text-slate-500">{u.email}</p></div>
-          <span className="text-xs font-black text-emerald-custom">₹{u.balance?.toLocaleString()}</span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-black text-emerald-custom">₹{u.balance?.toLocaleString()}</span>
+            <button onClick={() => {
+                const bal = prompt("New balance:", u.balance);
+                if(bal) onUpdateUser(u._id, { balance: Number(bal) });
+            }} className="text-[10px] text-primary font-bold">Edit</button>
+          </div>
         </div>
       ))}
     </div>
   </div>
 );
 
-const StockTab = ({ stocks }) => (
+const StockTab = ({ stocks, onUpdateStock }) => (
   <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl">
-    <h3 className="font-bold mb-4 flex items-center gap-2"><span className="material-symbols-outlined text-primary">monitoring</span> Stock Management</h3>
+    <h3 className="font-bold mb-4 flex items-center gap-2">
+      <span className="material-symbols-outlined text-primary">monitoring</span> Stock Management
+    </h3>
     <table className="w-full text-left text-sm">
       <thead className="text-slate-400 border-b border-slate-100 dark:border-slate-800">
-        <tr><th className="pb-3">Ticker</th><th className="pb-3">Exchange</th><th className="pb-3">Price</th><th className="pb-3 text-right">Actions</th></tr>
+        <tr>
+          <th className="pb-3">Ticker</th>
+          <th className="pb-3">Exchange</th>
+          <th className="pb-3">Live Price</th>
+          <th className="pb-3">Status</th>
+          <th className="pb-3 text-right">Actions</th>
+        </tr>
       </thead>
       <tbody>
         {stocks.map((s, i) => (
@@ -102,7 +133,20 @@ const StockTab = ({ stocks }) => (
             <td className="py-3 font-bold">{s.symbol}</td>
             <td className="py-3 text-slate-500">{s.stockExchange || s.exchange}</td>
             <td className="py-3 font-mono">₹{s.price}</td>
-            <td className="py-3 text-right"><button className="text-primary text-xs font-bold">Edit</button></td>
+            <td className="py-3">
+               <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${s.status === 'Halted' ? 'bg-rose-500/20 text-rose-500' : 'bg-emerald-500/20 text-emerald-500'}`}>
+                 {s.status || 'Active'}
+               </span>
+            </td>
+            <td className="py-3 text-right">
+               {/* Only Halt/Resume functionality remains */}
+               <button 
+                 onClick={() => onUpdateStock(s.symbol, { status: s.status === 'Halted' ? 'Active' : 'Halted' })} 
+                 className={`text-xs font-bold ${s.status === 'Halted' ? 'text-emerald-500' : 'text-rose-500 hover:underline'}`}
+               >
+                 {s.status === 'Halted' ? 'Resume Trading' : 'Halt Trading'}
+               </button>
+            </td>
           </tr>
         ))}
       </tbody>
@@ -118,7 +162,7 @@ const LedgerTab = ({ transactions }) => (
         <div key={i} className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800/30 rounded-lg text-xs">
           <span className={`font-bold uppercase ${t.orderType === 'buy' ? 'text-emerald-500' : 'text-rose-500'}`}>{t.orderType}</span>
           <span className="font-medium">{t.symbol} x {t.count}</span>
-          <span className="text-slate-400">{new Date(t.createdAt).toLocaleString()}</span>
+          <span className="text-slate-400">{new Date(t.createdAt).toLocaleTimeString()}</span>
           <span className="font-black">₹{t.totalPrice?.toLocaleString()}</span>
         </div>
       ))}
@@ -129,7 +173,7 @@ const LedgerTab = ({ transactions }) => (
 const LogTab = ({ logs }) => (
   <div className="p-6 bg-black text-emerald-500 font-mono text-xs rounded-xl border border-slate-800 overflow-y-auto max-h-[500px]">
     {logs.map((log) => (
-      <p key={log.id} className="mb-1">[{log.time.toLocaleTimeString()}] SYSTEM::{log.event} - STATUS::{log.status}</p>
+      <p key={log.id} className="mb-1">[{new Date(log.time).toLocaleTimeString()}] SYSTEM::{log.event} - STATUS::{log.status}</p>
     ))}
   </div>
 );
