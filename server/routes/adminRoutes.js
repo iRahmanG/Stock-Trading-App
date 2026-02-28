@@ -4,7 +4,8 @@ const router = express.Router();
 const { 
     getAdminDashboardData, 
     updateUserByAdmin, 
-    updateStockByAdmin 
+    updateStockByAdmin,
+    getUserAuditTrail
 } = require('../controllers/adminController'); 
 const { protect } = require('../middlewares/authMiddleware');
 const { isAdmin } = require('../middlewares/adminMiddleware');
@@ -15,5 +16,7 @@ router.get('/telemetry', protect, isAdmin, getAdminDashboardData);
 // Admin Action Routes
 router.put('/user', protect, isAdmin, updateUserByAdmin);
 router.put('/stock', protect, isAdmin, updateStockByAdmin);
+// Register the new audit trail route
+router.get('/audit/:userId', protect, isAdmin, getUserAuditTrail);
 
 module.exports = router;

@@ -2,25 +2,32 @@ const User = require('../models/userModel');
 const Order = require('../models/orderSchema'); 
 const Stock = require('../models/stockSchema');
 
-// @desc    Fetch all data for Admin Command Center
+// @desc    Get users with search functionality
 const getAdminDashboardData = async (req, res) => {
     try {
+        const { search } = req.query; // Get search term from URL
+        let userQuery = {};
+
+        if (search) {
+            // Search by username or email (case-insensitive)
+            userQuery = {
+                $or: [
+                    { username: { $regex: search, $options: 'i' } },
+                    { email: { $regex: search, $options: 'i' } }
+                ]
+            };
+        }
+
         const activeUsersCount = await User.countDocuments();
-        const allUsers = await User.find({}).select('-password').sort({ createdAt: -1 });
+        const allUsers = await User.find(userQuery).select('-password').sort({ createdAt: -1 });
         const allStocks = await Stock.find({});
         const globalLedger = await Order.find({}).sort({ createdAt: -1 }).limit(50);
         
-        const systemLogs = [
-            { id: 1, event: "Telemetry Sync", time: new Date(), status: "Success" },
-            { id: 2, event: "Admin Login Detected", time: new Date(), status: "Success" }
-        ];
-
         res.json({
             activeUsers: activeUsersCount,
             users: allUsers,
             stocks: allStocks,
             transactions: globalLedger,
-            logs: systemLogs,
             serverStatus: "Operational",
             latency: "24ms"
         });
@@ -65,5 +72,16 @@ const updateStockByAdmin = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+// @desc    Fetch audit trail for a specific user
+const getUserAuditTrail = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        // Search for orders where 'user' matches the username or ID
+        const userOrders = await Order.find({ user: userId }).sort({ createdAt: -1 });
+        res.json(userOrders);
+    } catch (error) {
+        res.status(500).json({ message: "Failed to fetch user audit trail." });
+    }
+};
 
-module.exports = { getAdminDashboardData, updateUserByAdmin, updateStockByAdmin };
+module.exports = { getAdminDashboardData, updateUserByAdmin, updateStockByAdmin, getUserAuditTrail };
