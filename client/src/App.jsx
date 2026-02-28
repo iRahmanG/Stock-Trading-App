@@ -10,7 +10,7 @@ import Home from './pages/Home';
 import Portfolio from './pages/Portfolio';
 import Trade from './pages/Trade';
 import Profile from './pages/Profile';
-import AdminDashboard from './pages/admin/AdminDashboard'; // IMPORT ADMIN PANEL
+import AdminDashboard from './pages/admin/AdminDashboard';
 
 function App() {
   return (
@@ -25,7 +25,7 @@ function App() {
             <Route path="/portfolio" element={<Portfolio />} />
             <Route path="/trade/:symbol" element={<Trade />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/admin" element={<AdminDashboard />} /> {/* ADMIN ROUTE */}
+            <Route path="/admin" element={<AdminDashboard />} />
           </Routes>
 
           <ToastContainer 

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const stocksSchema = new mongoose.Schema({
+const stockSchema = new mongoose.Schema({
     user: { type: String, required: true }, // Links to the user's email or ID
     symbol: { type: String, required: true }, // e.g., AAPL
     name: { type: String, required: true }, // e.g., Apple Inc.
@@ -12,4 +12,4 @@ const stocksSchema = new mongoose.Schema({
     timestamps: true
 });
 
-module.exports = mongoose.model('Stock', stocksSchema);
+module.exports = mongoose.model('Stock', stockSchema);

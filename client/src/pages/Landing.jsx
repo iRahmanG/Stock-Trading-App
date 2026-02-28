@@ -20,21 +20,17 @@ const Landing = () => {
     setLoading(true);
 
     try {
-      if (isLogin) {
-        // Use the centralized login function from AuthContext
-        const success = await login(email, password);
-        
-        if (success) {
-          const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-          
-          // ROLE-BASED REDIRECTION
-          if (userInfo && userInfo.isAdmin) {
-            navigate('/admin'); 
-          } else {
-            navigate('/dashboard');
-          }
+    if (isLogin) {
+      const loggedInUser = await login(email, password);
+      
+      if (loggedInUser) {
+        if (loggedInUser.isAdmin) {
+          navigate('/admin'); 
+        } else {
+          navigate('/dashboard');
         }
-      } else {
+      }
+    } else {
         const { data } = await axios.post('http://localhost:8000/api/users/register', {
           username,
           email,
@@ -46,7 +42,7 @@ const Landing = () => {
         navigate('/dashboard');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Something went wrong.');
+      setError(err.response?.data?.message || 'Login failed.');
     } finally {
       setLoading(false);
     }

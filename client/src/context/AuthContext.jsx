@@ -20,7 +20,6 @@ export const AuthProvider = ({ children }) => {
     try {
       const { data } = await axios.post('http://localhost:8000/api/users/login', { email, password });
       
-      // Data includes _id, username, email, isAdmin, token
       setUser(data);
       localStorage.setItem('userInfo', JSON.stringify(data));
       
@@ -29,7 +28,7 @@ export const AuthProvider = ({ children }) => {
       } else {
         toast.success(`Welcome back, ${data.username || 'User'}!`);
       }
-      return true;
+      return data;
     } catch (error) {
       toast.error(error.response?.data?.message || "Invalid credentials.");
       return false;

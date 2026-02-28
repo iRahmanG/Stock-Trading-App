@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import { AuthContext } from '../context/AuthContext';
+import { AuthContext } from "../../context/AuthContext"; 
 import { toast } from 'react-toastify';
 
 const AdminDashboard = () => {
@@ -29,17 +29,15 @@ const AdminDashboard = () => {
         setLoading(false);
       }
     };
-    fetchAdminData();
+    if (user) fetchAdminData();
   }, [user]);
 
   const handleHaltStock = (symbol) => {
     toast.warning(`Trading halted for ${symbol}`);
-    // Logic for updating stock status in DB
   };
 
   return (
     <div className="flex bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display min-h-screen">
-      {/* Sidebar - Use your provided classes */}
       <aside className="w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 hidden lg:flex flex-col">
         <div className="p-6 flex items-center gap-3">
           <div className="size-10 bg-primary rounded-lg flex items-center justify-center text-white font-bold text-xl">A</div>
@@ -49,15 +47,13 @@ const AdminDashboard = () => {
           </div>
         </div>
         <nav className="flex-1 px-4 space-y-1">
-          <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 text-primary font-bold text-sm">
+          <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 text-primary font-bold text-sm text-left">
             <span className="material-symbols-outlined">dashboard</span> Global Overview
           </button>
-          {/* Add other buttons matching your UI */}
         </nav>
       </aside>
 
       <main className="flex-1 overflow-y-auto p-8 space-y-6">
-        {/* System Health Section */}
         <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <HealthCard title="API Latency" value={stats.latency} icon="speed" color="emerald" />
           <HealthCard title="Server Status" value={stats.serverStatus} icon="dns" color="primary" />
@@ -66,7 +62,6 @@ const AdminDashboard = () => {
         </section>
 
         <div className="grid grid-cols-12 gap-6">
-          {/* Stock Management */}
           <div className="col-span-12 lg:col-span-8 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm">
             <h3 className="font-bold mb-6 flex items-center gap-2">
               <span className="material-symbols-outlined text-primary">monitoring</span> Stock Management
@@ -84,7 +79,7 @@ const AdminDashboard = () => {
                 {stocks.map((s, i) => (
                   <tr key={i}>
                     <td className="py-4 font-bold">{s.symbol}</td>
-                    <td className="py-4 text-slate-500">{s.exchange}</td>
+                    <td className="py-4 text-slate-500">{s.stockExchange || s.exchange}</td>
                     <td className="py-4 text-center">
                       <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-custom/10 text-emerald-custom">Active</span>
                     </td>
@@ -97,7 +92,6 @@ const AdminDashboard = () => {
             </table>
           </div>
 
-          {/* Global Transaction Ledger */}
           <div className="col-span-12 lg:col-span-4 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm">
             <h3 className="font-bold mb-4 flex items-center gap-2">
               <span className="material-symbols-outlined text-primary">receipt_long</span> Recent Ledger
@@ -106,10 +100,10 @@ const AdminDashboard = () => {
               {transactions.slice(0, 5).map((t, i) => (
                 <div key={i} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg flex justify-between items-center">
                   <div>
-                    <p className="text-xs font-bold">{t.orderType.toUpperCase()} {t.symbol}</p>
+                    <p className="text-xs font-bold">{t.orderType?.toUpperCase()} {t.symbol}</p>
                     <p className="text-[10px] text-slate-500">{t.user}</p>
                   </div>
-                  <p className="text-xs font-black">₹{t.totalPrice.toLocaleString()}</p>
+                  <p className="text-xs font-black">₹{t.totalPrice?.toLocaleString()}</p>
                 </div>
               ))}
             </div>
@@ -120,7 +114,6 @@ const AdminDashboard = () => {
   );
 };
 
-// Sub-component for health cards
 const HealthCard = ({ title, value, icon, color }) => (
   <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center gap-4">
     <div className={`size-12 rounded-lg bg-${color}-500/10 text-${color}-500 flex items-center justify-center`}>
